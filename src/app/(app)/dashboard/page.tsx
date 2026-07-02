@@ -1,13 +1,3 @@
-import { createClient } from '@/lib/supabase/server'
-
-async function getDashboardData() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/dashboard`, {
-    cache: 'no-store',
-  })
-  if (!res.ok) return null
-  return res.json()
-}
-
 export default async function DashboardPage() {
   return (
     <div>
