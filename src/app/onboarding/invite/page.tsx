@@ -25,10 +25,10 @@ export default function InvitePage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-stone-100 p-8">
-        <h2 className="text-xl font-semibold text-stone-800 mb-2">Invite your partner</h2>
-        <p className="text-stone-500 text-sm mb-6">
+    <div className="min-h-screen bg-bg flex items-center justify-center p-5">
+      <div className="w-full max-w-sm bg-surface rounded-neu shadow-raised p-8">
+        <h2 className="text-xl font-semibold mb-2">Invite your partner</h2>
+        <p className="text-ink-muted text-[13px] mb-6">
           Send them a private invite link. It expires in 72 hours and can only be used once.
         </p>
 
@@ -36,29 +36,24 @@ export default function InvitePage() {
           <button
             onClick={generateLink}
             disabled={loading}
-            className="w-full py-3 bg-stone-800 text-white rounded-xl text-sm font-medium hover:bg-stone-700 disabled:opacity-50 transition-colors mb-4"
+            className="w-full py-4 bg-surface text-ink rounded-neu shadow-raised text-sm font-semibold active:shadow-inset disabled:opacity-50 transition-all mb-4"
           >
             {loading ? 'Generating…' : 'Generate invite link'}
           </button>
         ) : (
-          <div className="mb-4">
-            <div className="flex items-center gap-2 p-3 bg-stone-50 rounded-xl border border-stone-200 mb-3">
-              <span className="flex-1 text-xs text-stone-600 truncate font-mono">
-                {location.origin}/invite/{token}
-              </span>
-              <button
-                onClick={copy}
-                className="text-xs text-stone-800 font-medium hover:underline"
-              >
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
-            </div>
+          <div className="flex items-center gap-2 px-4 py-3.5 bg-bg-deep rounded-neu-sm shadow-inset mb-4">
+            <span className="flex-1 text-xs text-ink-muted truncate font-mono">
+              {location.origin}/invite/{token}
+            </span>
+            <button onClick={copy} className="text-xs text-accent font-semibold">
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
           </div>
         )}
 
         <button
           onClick={() => router.push('/dashboard')}
-          className="w-full py-3 border border-stone-200 text-stone-600 rounded-xl text-sm font-medium hover:bg-stone-50 transition-colors"
+          className="w-full py-3.5 bg-surface text-ink-muted rounded-neu shadow-raised-sm text-sm font-medium active:shadow-inset transition-all"
         >
           Skip for now, go to dashboard
         </button>

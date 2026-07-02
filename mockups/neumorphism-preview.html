@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>.chtku — Neumorphism mockup</title>
+  <style>
+    :root {
+      --bg: #E8E4DF;
+      --bg-deep: #DDD8D2;
+      --surface: #E8E4DF;
+      --text: #4A4540;
+      --text-muted: #8A837A;
+      --text-soft: #A39E96;
+      --accent: #B8957A;
+      --accent-soft: #D4B8A0;
+      --rose: #C9A09A;
+      --shadow-dark: #B8B0A6;
+      --shadow-light: #FAF8F5;
+      --radius: 20px;
+      --radius-sm: 14px;
+      --raised: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+      --raised-sm: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+      --inset: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+      --inset-deep: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 40px;
+    }
+
+    .mockup-header {
+      text-align: center;
+      margin-bottom: 20px;
+      max-width: 420px;
+    }
+
+    .mockup-header h1 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .mockup-header p {
+      font-size: 12px;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .screen-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 420px;
+    }
+
+    .tab {
+      border: none;
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: var(--raised-sm);
+      transition: all 0.2s ease;
+    }
+
+    .tab.active {
+      color: var(--text);
+      box-shadow: var(--inset);
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 390px;
+      min-height: 780px;
+      background: var(--bg);
+      border-radius: 36px;
+      box-shadow: var(--raised), 0 24px 48px rgba(74, 69, 64, 0.12);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .screen { display: none; flex: 1; flex-direction: column; padding: 28px 20px 88px; }
+    .screen.active { display: flex; }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .page-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+    }
+
+    .neu-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--raised);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .neu-card-sm {
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--raised-sm);
+      padding: 14px;
+    }
+
+    .neu-inset {
+      background: var(--bg-deep);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--inset);
+      padding: 14px 16px;
+    }
+
+    .streak-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .streak-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--surface);
+      box-shadow: var(--raised-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .streak-label { font-size: 13px; color: var(--text-muted); }
+    .streak-value { font-size: 15px; font-weight: 600; }
+
+    .priority-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      box-shadow: var(--raised-sm);
+      margin-bottom: 10px;
+    }
+
+    .priority-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--bg-deep);
+      box-shadow: var(--inset);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .priority-text strong { display: block; font-size: 13px; font-weight: 600; }
+    .priority-text span { font-size: 11px; color: var(--text-muted); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .action-tile {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--raised-sm);
+      padding: 18px 14px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+
+    .action-tile:active { box-shadow: var(--inset); }
+
+    .action-tile .icon { font-size: 22px; margin-bottom: 8px; display: block; }
+
+    .prompt-box {
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+
+    .slider-group { margin-bottom: 16px; }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .slider-track {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--bg-deep);
+      box-shadow: var(--inset);
+      position: relative;
+    }
+
+    .slider-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent-soft), var(--accent));
+      width: 70%;
+    }
+
+    .slider-thumb {
+      position: absolute;
+      top: 50%;
+      left: 70%;
+      transform: translate(-50%, -50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--surface);
+      box-shadow: var(--raised-sm);
+    }
+
+    .textarea-mock {
+      width: 100%;
+      min-height: 88px;
+      border: none;
+      resize: none;
+      background: var(--bg-deep);
+      box-shadow: var(--inset);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .btn-primary {
+      width: 100%;
+      border: none;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 16px;
+      border-radius: var(--radius);
+      box-shadow: var(--raised);
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .btn-primary:active { box-shadow: var(--inset); }
+
+    .partner-lock {
+      text-align: center;
+      padding: 28px 16px;
+    }
+
+    .lock-circle {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: var(--surface);
+      box-shadow: var(--inset-deep);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .lock-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .lock-sub { font-size: 12px; color: var(--text-muted); }
+
+    .memory-card { margin-bottom: 12px; }
+
+    .memory-tags {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--bg-deep);
+      box-shadow: var(--inset);
+    }
+
+    .memory-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .memory-body { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    .fab {
+      position: absolute;
+      right: 24px;
+      bottom: 100px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: var(--surface);
+      box-shadow: var(--raised);
+      font-size: 24px;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px 20px;
+      background: var(--bg);
+    }
+
+    .nav-track {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: var(--surface);
+      border-radius: 24px;
+      box-shadow: var(--raised);
+      padding: 10px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-soft);
+      padding: 6px 10px;
+      border-radius: 14px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+
+    .nav-item.active {
+      color: var(--text);
+      background: var(--bg-deep);
+      box-shadow: var(--inset);
+    }
+
+    .nav-item .ni { font-size: 18px; }
+
+  </style>
+</head>
+<body>
+  <div class="mockup-header">
+    <h1>.chtku · Neumorphism</h1>
+    <p>Design mockup only — warm stone palette, soft dual shadows, inset for inputs &amp; active states. Tap tabs to switch screens.</p>
+  </div>
+
+  <div class="screen-tabs">
+    <button class="tab active" data-screen="dashboard">Dashboard</button>
+    <button class="tab" data-screen="checkin">Check-in</button>
+    <button class="tab" data-screen="reveal">Partner reveal</button>
+    <button class="tab" data-screen="memories">Memories</button>
+    <button class="tab" data-screen="login">Login</button>
+  </div>
+
+  <div class="phone">
+    <!-- Dashboard -->
+    <div class="screen active" id="dashboard">
+      <div class="page-title">Home</div>
+      <div class="page-sub">Thursday · both checked in today</div>
+
+      <div class="streak-row neu-card">
+        <div class="streak-badge">7</div>
+        <div>
+          <div class="streak-label">Current streak</div>
+          <div class="streak-value">7 days together</div>
+        </div>
+      </div>
+
+      <div class="priority-item">
+        <div class="priority-icon">💛</div>
+        <div class="priority-text">
+          <strong>Check-in complete</strong>
+          <span>See today's summary below</span>
+        </div>
+      </div>
+
+      <div class="priority-item">
+        <div class="priority-icon">📅</div>
+        <div class="priority-text">
+          <strong>Saturday dinner</strong>
+          <span>Planned · 2 days away</span>
+        </div>
+      </div>
+
+      <div class="neu-card" style="margin-top: 6px;">
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Today's summary</div>
+        <p style="font-size:13px;line-height:1.55;color:var(--text-muted);">You both felt energized today. Ahnaf mentioned wanting more quiet time together — maybe a low-key evening walk this weekend?</p>
+      </div>
+
+      <div class="grid-2" style="margin-top: 4px;">
+        <div class="action-tile"><span class="icon">♥</span>Check In</div>
+        <div class="action-tile"><span class="icon">✦</span>Plan Date</div>
+        <div class="action-tile"><span class="icon">+</span>Add Memory</div>
+        <div class="action-tile"><span class="icon">◎</span>Memories</div>
+      </div>
+    </div>
+
+    <!-- Check-in -->
+    <div class="screen" id="checkin">
+      <div class="page-title">Check In</div>
+      <div class="page-sub">Day 7 streak · prompt rotates daily</div>
+
+      <div class="neu-card">
+        <div class="prompt-box">"What is one thing you appreciated about your partner today?"</div>
+
+        <div class="slider-group">
+          <div class="slider-label"><span>Mood</span><span>7</span></div>
+          <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+        </div>
+        <div class="slider-group">
+          <div class="slider-label"><span>Energy</span><span>6</span></div>
+          <div class="slider-track"><div class="slider-fill" style="width:60%"></div><div class="slider-thumb" style="left:60%"></div></div>
+        </div>
+        <div class="slider-group">
+          <div class="slider-label"><span>Stress</span><span>3</span></div>
+          <div class="slider-track"><div class="slider-fill" style="width:30%"></div><div class="slider-thumb" style="left:30%"></div></div>
+        </div>
+        <div class="slider-group">
+          <div class="slider-label"><span>Closeness</span><span>8</span></div>
+          <div class="slider-track"><div class="slider-fill" style="width:80%"></div><div class="slider-thumb" style="left:80%"></div></div>
+        </div>
+
+        <textarea class="textarea-mock" placeholder="Anything else on your mind…" readonly></textarea>
+        <button class="btn-primary">Submit check-in</button>
+      </div>
+    </div>
+
+    <!-- Partner reveal locked -->
+    <div class="screen" id="reveal">
+      <div class="page-title">Check In</div>
+      <div class="page-sub">You submitted · waiting for partner</div>
+
+      <div class="neu-card">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Your response · submitted 2h ago</div>
+        <div class="neu-inset" style="margin-bottom:14px;">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Mood 7 · Energy 6 · Stress 3 · Closeness 8</div>
+          <p style="font-size:13px;line-height:1.5;">Really appreciated how you made coffee without me asking this morning.</p>
+        </div>
+      </div>
+
+      <div class="neu-card partner-lock">
+        <div class="lock-circle">🔒</div>
+        <div class="lock-title">Partner's response locked</div>
+        <div class="lock-sub">Reveals in 22 hours — or when they check in</div>
+      </div>
+    </div>
+
+    <!-- Memories -->
+    <div class="screen" id="memories">
+      <div class="page-title">Memories</div>
+      <div class="page-sub">12 shared · tagged &amp; searchable</div>
+
+      <div class="memory-tags" style="margin-bottom:16px;">
+        <span class="tag">All</span>
+        <span class="tag" style="opacity:0.6">Favorite</span>
+        <span class="tag" style="opacity:0.6">Event</span>
+        <span class="tag" style="opacity:0.6">Food</span>
+      </div>
+
+      <div class="neu-card memory-card">
+        <div class="memory-tags"><span class="tag">Favorite</span></div>
+        <div class="memory-title">Sunday morning walks</div>
+        <div class="memory-body">We always end up at the bakery on Maple. Croissants, no plan, just us.</div>
+      </div>
+
+      <div class="neu-card memory-card">
+        <div class="memory-tags"><span class="tag">Event</span></div>
+        <div class="memory-title">Anniversary dinner</div>
+        <div class="memory-body">March 14 — reserved at Lume. She loves the window table.</div>
+      </div>
+
+      <div class="neu-card memory-card">
+        <div class="memory-tags"><span class="tag">Favorite</span></div>
+        <div class="memory-title">Comfort show</div>
+        <div class="memory-body">Rewatching Midnight Diner together on Friday nights.</div>
+      </div>
+
+      <button class="fab">+</button>
+    </div>
+
+    <!-- Login -->
+    <div class="screen" id="login" style="justify-content:center;padding-top:80px;">
+      <div class="neu-card" style="text-align:center;padding:32px 24px;">
+        <div style="font-size:28px;font-weight:600;letter-spacing:-0.03em;margin-bottom:6px;">.chtku</div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:28px;">Your private space, together.</p>
+
+        <div class="neu-inset" style="margin-bottom:14px;text-align:left;">
+          <span style="font-size:13px;color:var(--text-soft);">your@email.com</span>
+        </div>
+
+        <button class="btn-primary">Continue with email</button>
+      </div>
+    </div>
+
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+      <div class="nav-track">
+        <button class="nav-item active" data-nav="dashboard"><span class="ni">⌂</span>Home</button>
+        <button class="nav-item" data-nav="checkin"><span class="ni">♥</span>Check In</button>
+        <button class="nav-item" data-nav="memories"><span class="ni">◎</span>Memories</button>
+        <button class="nav-item"><span class="ni">▦</span>Dates</button>
+        <button class="nav-item"><span class="ni">⚙</span>Settings</button>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const screens = document.querySelectorAll('.screen');
+    const navItems = document.querySelectorAll('.nav-item[data-nav]');
+
+    function showScreen(id) {
+      screens.forEach(s => s.classList.toggle('active', s.id === id));
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.screen === id));
+      navItems.forEach(n => n.classList.toggle('active', n.dataset.nav === id));
+    }
+
+    tabs.forEach(t => t.addEventListener('click', () => showScreen(t.dataset.screen)));
+    navItems.forEach(n => n.addEventListener('click', () => showScreen(n.dataset.nav)));
+  </script>
+</body>
+</html>

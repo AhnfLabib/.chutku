@@ -1,7 +1,7 @@
 import { createClient, getWorkspaceId } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { anthropic } from '@/lib/anthropic'
-import { buildCheckinSummaryPrompt } from '@/lib/prompts/checkin'
+import { complete } from '@/lib/ai'
+import { buildCheckinSummaryPrompt, buildTemplateCheckinSummary } from '@/lib/prompts/checkin'
 
 const UNLOCK_MS = 24 * 60 * 60 * 1000
 
@@ -121,13 +121,9 @@ export async function POST(request: Request) {
         .eq('workspace_id', workspaceId)
 
       const prompt = buildCheckinSummaryPrompt(allCheckins, profiles ?? [])
-      const message = await anthropic.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        messages: [{ role: 'user', content: prompt }],
-      })
-
-      const summaryText = message.content[0].type === 'text' ? message.content[0].text : ''
+      const summaryText =
+        (await complete(prompt, 300)) ||
+        buildTemplateCheckinSummary(allCheckins, profiles ?? [])
       await supabase.from('checkin_summaries').insert({
         workspace_id: workspaceId,
         checkin_date: today,

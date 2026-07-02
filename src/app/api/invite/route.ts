@@ -1,4 +1,4 @@
-import { createClient, createServiceClient, getWorkspaceId } from '@/lib/supabase/server'
+import { createClient, getWorkspaceId } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 
