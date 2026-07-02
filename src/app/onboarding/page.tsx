@@ -1,16 +1,28 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { ensureInitiatorWorkspace } from '@/lib/supabase/server'
 
 export default async function OnboardingPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('profiles')
     .select('display_name, onboarding_complete')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
+
+  if (!profile) {
+    await ensureInitiatorWorkspace(user)
+    const refreshed = await supabase
+      .from('profiles')
+      .select('display_name, onboarding_complete')
+      .eq('id', user.id)
+      .single()
+
+    profile = refreshed.data
+  }
 
   if (profile?.onboarding_complete) redirect('/dashboard')
 

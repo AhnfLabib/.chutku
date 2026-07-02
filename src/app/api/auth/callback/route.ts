@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { getPostAuthRedirect, shouldBootstrapWorkspace } from '@/lib/auth/post-auth'
+import { createClient, ensureInitiatorWorkspace } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -11,31 +12,18 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Create workspace + profile on first sign-in
-      const { data: existing } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', data.user.id)
-        .single()
+      let onboardingComplete = false
 
-      if (!existing) {
-        const { data: workspace } = await supabase
-          .from('workspaces')
-          .insert({})
-          .select('id')
-          .single()
-
-        if (workspace) {
-          await supabase.from('profiles').insert({
-            id: data.user.id,
-            workspace_id: workspace.id,
-            display_name: data.user.email?.split('@')[0] ?? 'Partner',
-            role: 'initiator',
-          })
-        }
+      if (shouldBootstrapWorkspace(next)) {
+        const bootstrap = await ensureInitiatorWorkspace(data.user)
+        onboardingComplete = bootstrap.onboardingComplete
       }
 
-      return NextResponse.redirect(`${origin}/onboarding`)
+      const destination = getPostAuthRedirect({
+        requestedNext: next,
+        onboardingComplete,
+      })
+      return NextResponse.redirect(`${origin}${destination}`)
     }
   }
 

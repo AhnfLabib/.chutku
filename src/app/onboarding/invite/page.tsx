@@ -8,13 +8,25 @@ export default function InvitePage() {
   const [token, setToken] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function generateLink() {
     setLoading(true)
-    const res = await fetch('/api/invite', { method: 'POST' })
-    const data = await res.json()
-    setToken(data.token)
-    setLoading(false)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/invite', { method: 'POST' })
+      const data = await res.json().catch(() => null)
+
+      if (!res.ok || !data?.token) {
+        setError(data?.error ?? 'Could not generate an invite link right now.')
+        return
+      }
+
+      setToken(data.token)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function copy() {
@@ -33,13 +45,18 @@ export default function InvitePage() {
         </p>
 
         {!token ? (
-          <button
-            onClick={generateLink}
-            disabled={loading}
-            className="w-full py-4 bg-surface text-ink rounded-neu shadow-raised text-sm font-semibold active:shadow-inset disabled:opacity-50 transition-all mb-4"
-          >
-            {loading ? 'Generating…' : 'Generate invite link'}
-          </button>
+          <>
+            <button
+              onClick={generateLink}
+              disabled={loading}
+              className="w-full py-4 bg-surface text-ink rounded-neu shadow-raised text-sm font-semibold active:shadow-inset disabled:opacity-50 transition-all mb-4"
+            >
+              {loading ? 'Generating…' : 'Generate invite link'}
+            </button>
+            {error && (
+              <p className="text-xs text-red-600 mb-4">{error}</p>
+            )}
+          </>
         ) : (
           <div className="flex items-center gap-2 px-4 py-3.5 bg-bg-deep rounded-neu-sm shadow-inset mb-4">
             <span className="flex-1 text-xs text-ink-muted truncate font-mono">

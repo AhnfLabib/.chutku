@@ -32,6 +32,47 @@ export function createServiceClient() {
   )
 }
 
+export async function ensureInitiatorWorkspace(
+  user: { id: string; email?: string | null }
+): Promise<{ workspaceId: string; onboardingComplete: boolean }> {
+  const service = createServiceClient()
+  const { data: profile, error: profileError } = await service
+    .from('profiles')
+    .select('workspace_id, display_name, role, onboarding_complete')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (profileError) throw new Error(`Profile lookup failed: ${profileError.message}`)
+  if (profile?.workspace_id) {
+    return {
+      workspaceId: profile.workspace_id,
+      onboardingComplete: Boolean(profile.onboarding_complete),
+    }
+  }
+
+  const { data: workspace, error: workspaceError } = await service
+    .from('workspaces')
+    .insert({})
+    .select('id')
+    .single()
+
+  if (workspaceError || !workspace?.id) {
+    throw new Error(`Workspace creation failed: ${workspaceError?.message ?? 'Missing workspace id'}`)
+  }
+
+  const { error: upsertError } = await service.from('profiles').upsert({
+    id: user.id,
+    workspace_id: workspace.id,
+    display_name: profile?.display_name ?? user.email?.split('@')[0] ?? 'Partner',
+    role: profile?.role ?? 'initiator',
+    onboarding_complete: profile?.onboarding_complete ?? false,
+  })
+
+  if (upsertError) throw new Error(`Profile bootstrap failed: ${upsertError.message}`)
+
+  return { workspaceId: workspace.id, onboardingComplete: Boolean(profile?.onboarding_complete) }
+}
+
 export async function getWorkspaceId(supabase: Awaited<ReturnType<typeof createClient>>): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthenticated')

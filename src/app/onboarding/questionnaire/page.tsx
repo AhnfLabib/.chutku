@@ -8,16 +8,30 @@ export default function QuestionnairePage() {
   const router = useRouter()
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    await fetch('/api/onboarding', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(answers),
-    })
-    router.push('/onboarding/invite')
+    setError(null)
+
+    try {
+      const res = await fetch('/api/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(answers),
+      })
+      const body = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        setError(body?.error ?? 'Could not save your answers right now.')
+        return
+      }
+
+      router.push('/onboarding/invite')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -49,6 +63,9 @@ export default function QuestionnairePage() {
           >
             {loading ? 'Saving…' : 'Save and continue'}
           </button>
+          {error && (
+            <p className="text-xs text-red-600">{error}</p>
+          )}
         </form>
       </div>
     </div>

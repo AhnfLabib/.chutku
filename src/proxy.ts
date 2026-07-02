@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -24,7 +24,6 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
 
-  // Public routes — always allow
   if (
     path.startsWith('/api/auth') ||
     path.startsWith('/invite/') ||
@@ -35,12 +34,10 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // Not logged in — redirect to login
   if (!user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Check onboarding status for app routes
   if (path.startsWith('/dashboard') || path.startsWith('/memories') ||
       path.startsWith('/checkin') || path.startsWith('/dates') ||
       path.startsWith('/settings')) {
