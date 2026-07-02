@@ -51,17 +51,17 @@ export default function InviteAcceptPage({ params }: { params: Promise<{ token: 
 
   if (step === 'done') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-50">
-        <p className="text-stone-600 text-sm">Linked! Taking you to onboarding…</p>
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <p className="text-ink-muted text-sm">Linked! Taking you to onboarding…</p>
       </div>
     )
   }
 
   if (step === 'login') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-50 p-4">
-        <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-stone-100 p-8">
-          <h2 className="text-lg font-semibold text-stone-800 mb-4">Create your account to join</h2>
+      <div className="min-h-screen bg-bg flex items-center justify-center p-5">
+        <div className="w-full max-w-sm bg-surface rounded-neu shadow-raised p-8">
+          <h2 className="text-lg font-semibold mb-4">Create your account to join</h2>
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="email"
@@ -69,12 +69,12 @@ export default function InviteAcceptPage({ params }: { params: Promise<{ token: 
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-stone-300"
+              className="w-full px-4 py-3.5 rounded-neu-sm bg-bg-deep shadow-inset text-sm text-ink placeholder:text-ink-soft outline-none"
             />
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-stone-800 text-white rounded-xl text-sm font-medium hover:bg-stone-700 disabled:opacity-50 transition-colors"
+              className="w-full py-4 bg-surface text-ink rounded-neu shadow-raised text-sm font-semibold active:shadow-inset disabled:opacity-50 transition-all"
             >
               {loading ? 'Sending…' : 'Send magic link'}
             </button>
@@ -85,14 +85,14 @@ export default function InviteAcceptPage({ params }: { params: Promise<{ token: 
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-50 p-4">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-stone-100 p-8 text-center">
-        <h2 className="text-xl font-semibold text-stone-800 mb-2">You&apos;ve been invited</h2>
-        <p className="text-stone-500 text-sm mb-8">Join your partner&apos;s private .chtku space.</p>
+    <div className="min-h-screen bg-bg flex items-center justify-center p-5">
+      <div className="w-full max-w-sm bg-surface rounded-neu shadow-raised p-8 text-center">
+        <h2 className="text-xl font-semibold mb-2">You&apos;ve been invited</h2>
+        <p className="text-ink-muted text-[13px] mb-8">Join your partner&apos;s private .chtku space.</p>
         <button
           onClick={handleAccept}
           disabled={loading}
-          className="w-full py-3 bg-stone-800 text-white rounded-xl text-sm font-medium hover:bg-stone-700 disabled:opacity-50 transition-colors"
+          className="w-full py-4 bg-surface text-ink rounded-neu shadow-raised text-sm font-semibold active:shadow-inset disabled:opacity-50 transition-all"
         >
           {loading ? 'Joining…' : 'Accept invite'}
         </button>

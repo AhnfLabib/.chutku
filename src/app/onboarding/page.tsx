@@ -15,15 +15,15 @@ export default async function OnboardingPage() {
   if (profile?.onboarding_complete) redirect('/dashboard')
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-stone-100 p-8">
-        <h1 className="text-xl font-semibold text-stone-800 mb-2">Welcome to .chtku</h1>
-        <p className="text-stone-500 text-sm mb-6">
+    <div className="min-h-screen bg-bg flex items-center justify-center p-5">
+      <div className="w-full max-w-sm bg-surface rounded-neu shadow-raised p-8">
+        <h1 className="text-xl font-semibold mb-2">Welcome to .chtku</h1>
+        <p className="text-ink-muted text-[13px] mb-7">
           Let&apos;s set things up so .chtku feels personal from day one.
         </p>
         <a
           href="/onboarding/questionnaire"
-          className="block w-full text-center py-3 bg-stone-800 text-white rounded-xl text-sm font-medium hover:bg-stone-700 transition-colors"
+          className="block w-full text-center py-4 bg-surface text-ink rounded-neu shadow-raised text-sm font-semibold active:shadow-inset transition-all"
         >
           Get started
         </a>

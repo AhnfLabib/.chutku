@@ -21,13 +21,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-50">
-      <div className="w-full max-w-sm p-8 bg-white rounded-2xl shadow-sm border border-stone-100">
-        <h1 className="text-2xl font-semibold text-stone-800 mb-2">.chtku</h1>
-        <p className="text-stone-500 text-sm mb-8">Your private space, together.</p>
+    <div className="min-h-screen bg-bg flex items-center justify-center p-5">
+      <div className="w-full max-w-sm bg-surface rounded-neu shadow-raised p-8 text-center">
+        <h1 className="text-[28px] font-semibold tracking-tight mb-1.5">.chtku</h1>
+        <p className="text-ink-muted text-[13px] mb-7">Your private space, together.</p>
 
         {sent ? (
-          <p className="text-stone-600 text-sm">Check your email for a magic link.</p>
+          <div className="bg-bg-deep rounded-neu-sm shadow-inset p-4 text-sm text-ink-muted">
+            Check your email for a magic link.
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
@@ -36,12 +38,12 @@ export default function LoginPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-stone-300"
+              className="w-full px-4 py-3.5 rounded-neu-sm bg-bg-deep shadow-inset text-sm text-ink placeholder:text-ink-soft outline-none text-left"
             />
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-stone-800 text-white rounded-xl text-sm font-medium hover:bg-stone-700 disabled:opacity-50 transition-colors"
+              className="w-full py-4 bg-surface text-ink rounded-neu shadow-raised text-sm font-semibold active:shadow-inset disabled:opacity-50 transition-all"
             >
               {loading ? 'Sending…' : 'Continue with email'}
             </button>
