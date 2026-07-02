@@ -1,6 +1,6 @@
 import { createClient, getWorkspaceId } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { anthropic, buildCoupleContext } from '@/lib/anthropic'
+import { complete, buildCoupleContext } from '@/lib/ai'
 import { buildDateGenerationPrompt } from '@/lib/prompts/dates'
 
 export async function POST(request: Request) {
@@ -14,13 +14,7 @@ export async function POST(request: Request) {
   const ctx = await buildCoupleContext(workspaceId, 'date ideas preferences')
   const prompt = buildDateGenerationPrompt(ctx, filters)
 
-  const message = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: prompt }],
-  })
-
-  const raw = message.content[0].type === 'text' ? message.content[0].text : '[]'
+  const raw = await complete(prompt, 1024)
 
   let ideas = []
   try {

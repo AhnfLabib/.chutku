@@ -7,7 +7,7 @@ A private space for two — daily check-ins, shared memories, and AI-powered dat
 - **Framework:** Next.js 16 (App Router)
 - **Database:** Supabase Postgres + pgvector
 - **Auth:** Supabase Auth (magic link)
-- **AI:** Anthropic Claude (Haiku for check-in summaries, date ideas)
+- **AI:** Ollama (local, free) — check-in summaries, date ideas; template fallback if Ollama is offline
 - **Styling:** Tailwind CSS v4
 
 ## Getting Started
@@ -32,7 +32,11 @@ Fill in `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# Local AI (Ollama) — https://ollama.com
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=llama3.2:3b
+
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
@@ -58,7 +62,16 @@ supabase/migrations/
   008_checkin_reveal_rls.sql — 24hr partner reveal enforced in RLS
 ```
 
-### 4. Run
+### 4. Install Ollama (local AI)
+
+```bash
+# https://ollama.com — then pull a model:
+ollama pull llama3.2:3b
+```
+
+Summaries use Ollama when it's running. If Ollama is offline, check-in summaries fall back to a simple template.
+
+### 5. Run
 
 ```bash
 npm run dev
@@ -107,7 +120,7 @@ src/
   lib/
     supabase/             — browser + server clients
     dashboard.ts          — shared dashboard data helper
-    anthropic.ts          — Claude client + context builder
+    ai.ts                 — Ollama client + couple context builder
     prompts/              — checkin, dates prompt templates
   types/index.ts          — all DB + app types
 supabase/

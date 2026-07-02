@@ -1,4 +1,4 @@
-import { formatMemoriesForPrompt } from '../anthropic'
+import { formatMemoriesForPrompt } from '../ai'
 import type { Memory, Profile } from '@/types'
 
 type Ctx = { profiles: Profile[]; memories: Memory[] }

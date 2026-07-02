@@ -1,18 +1,45 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import type { Memory, Profile } from '@/types'
 
-export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-})
+const DEFAULT_BASE_URL = 'http://127.0.0.1:11434'
+const DEFAULT_MODEL = 'llama3.2:3b'
+
+function ollamaConfig() {
+  return {
+    baseUrl: process.env.OLLAMA_BASE_URL ?? DEFAULT_BASE_URL,
+    model: process.env.OLLAMA_MODEL ?? DEFAULT_MODEL,
+  }
+}
+
+/** Call a local Ollama model. Returns empty string if Ollama is unreachable. */
+export async function complete(prompt: string, maxTokens = 300): Promise<string> {
+  const { baseUrl, model } = ollamaConfig()
+
+  try {
+    const res = await fetch(`${baseUrl}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+        options: { num_predict: maxTokens },
+      }),
+      signal: AbortSignal.timeout(90_000),
+    })
+
+    if (!res.ok) return ''
+
+    const data = (await res.json()) as { message?: { content?: string } }
+    return data.message?.content?.trim() ?? ''
+  } catch {
+    return ''
+  }
+}
 
 export async function embedText(text: string): Promise<number[]> {
-  // Anthropic doesn't have a dedicated embeddings endpoint yet.
-  // Using a short Claude call to generate a deterministic float vector
-  // is not practical — instead we store null and skip semantic search
-  // until pgvector + an embeddings provider (e.g. OpenAI text-embedding-3-small)
-  // is wired up. Returning empty array signals "no embedding available".
-  // TODO: swap in real embeddings provider before launch.
+  // Local embeddings via Ollama (e.g. nomic-embed-text) can be added later.
+  // Until then, semantic search falls back to recency ordering.
   void text
   return []
 }
@@ -37,7 +64,6 @@ export async function buildCoupleContext(
   let memories: Memory[] = []
 
   if (queryText) {
-    // Semantic search — falls back to recency when embeddings are unavailable
     const embedding = await embedText(queryText)
     if (embedding.length > 0) {
       const { data } = await supabase.rpc('search_memories', {

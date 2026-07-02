@@ -1,12 +1,36 @@
 import type { Checkin, Profile } from '@/types'
 
+function avg(values: (number | null)[]): string {
+  const nums = values.filter((v): v is number => v !== null)
+  if (!nums.length) return 'n/a'
+  return (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1)
+}
+
+export function buildTemplateCheckinSummary(
+  checkins: Checkin[],
+  profiles: Profile[]
+): string {
+  const byUser = Object.fromEntries(checkins.map(c => [c.user_id, c]))
+  const parts = profiles
+    .map(p => {
+      const c = byUser[p.id]
+      if (!c?.free_text?.trim()) return null
+      return `${p.display_name} shared: "${c.free_text.trim()}"`
+    })
+    .filter(Boolean)
+
+  const mood = avg(checkins.map(c => c.mood))
+  const closeness = avg(checkins.map(c => c.closeness))
+
+  const themes = parts.length ? parts.join(' ') : 'You both checked in today.'
+  return `You both showed up today — mood averaged ${mood}/10, closeness ${closeness}/10. ${themes} Maybe take a few minutes tonight to talk about what stood out.`
+}
+
 export function buildCheckinSummaryPrompt(
   checkins: Checkin[],
   profiles: Profile[]
 ): string {
-  const byUser = Object.fromEntries(
-    checkins.map(c => [c.user_id, c])
-  )
+  const byUser = Object.fromEntries(checkins.map(c => [c.user_id, c]))
   const lines = profiles.map(p => {
     const c = byUser[p.id]
     if (!c) return `${p.display_name}: did not respond`
@@ -45,10 +69,4 @@ This week's check-in data (${days} responses):
 - What they shared: "${freeTexts}"
 
 Write a warm weekly recap in 3–4 sentences covering emotional patterns, any notable themes, and one actionable suggestion for the coming week.`
-}
-
-function avg(values: (number | null)[]): string {
-  const nums = values.filter((v): v is number => v !== null)
-  if (!nums.length) return 'n/a'
-  return (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1)
 }
