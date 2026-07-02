@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   if (!token) return NextResponse.json({ error: 'Missing token' }, { status: 400 })
 
   // Must use service role to look up token before accepting user has a workspace
-  const service = await createServiceClient()
+  const service = createServiceClient()
   const userClient = await createClient()
   const { data: { user } } = await userClient.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
