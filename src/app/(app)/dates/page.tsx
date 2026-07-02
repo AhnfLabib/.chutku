@@ -1,8 +1,10 @@
 export default function DatesPage() {
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-stone-800 mb-6">Dates</h1>
-      <p className="text-stone-400 text-sm">Date planning — coming in Phase 3.</p>
+      <h1 className="text-[26px] font-semibold tracking-tight mb-6">Dates</h1>
+      <div className="bg-surface rounded-neu shadow-raised p-7 text-center text-[13px] text-ink-muted">
+        AI date planning arrives in Phase 3.
+      </div>
     </div>
   )
 }
