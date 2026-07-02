@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #E8E4DF;
+  --color-bg-deep: #DDD8D2;
+  --color-surface: #E8E4DF;
+  --color-ink: #4A4540;
+  --color-ink-muted: #8A837A;
+  --color-ink-soft: #A39E96;
+  --color-accent: #B8957A;
+  --color-accent-soft: #D4B8A0;
+  --color-rose: #C9A09A;
+  --shadow-raised: 8px 8px 16px #B8B0A6, -8px -8px 16px #FAF8F5;
+  --shadow-raised-sm: 5px 5px 10px #B8B0A6, -5px -5px 10px #FAF8F5;
+  --shadow-inset: inset 4px 4px 8px #B8B0A6, inset -4px -4px 8px #FAF8F5;
+  --shadow-inset-deep: inset 6px 6px 12px #B8B0A6, inset -6px -6px 12px #FAF8F5;
+  --radius-neu: 20px;
+  --radius-neu-sm: 14px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+/* Neumorphic range slider: inset track, accent gradient fill (via inline
+   background-image set from React state), raised circular thumb. */
+input[type='range'].neu-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background-color: var(--color-bg-deep);
+  box-shadow: var(--shadow-inset);
+  background-repeat: no-repeat;
+  outline: none;
+}
+
+input[type='range'].neu-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised-sm);
+  cursor: pointer;
+}
+
+input[type='range'].neu-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised-sm);
+  cursor: pointer;
+}
