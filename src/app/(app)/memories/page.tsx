@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2, X } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Memory } from '@/types'
 
@@ -17,12 +17,18 @@ const EMPTY_FORM: FormState = { id: null, title: '', content: '', tags: '', memo
 
 export default function MemoriesPage() {
   const [memories, setMemories] = useState<Memory[]>([])
+  const [suggestions, setSuggestions] = useState<Memory[]>([])
   const [userId, setUserId] = useState<string | null>(null)
   const [activeTag, setActiveTag] = useState<string | null>(null)
   const [form, setForm] = useState<FormState | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const loadSuggestions = useCallback(async () => {
+    const res = await fetch('/api/memories/suggestions')
+    if (res.ok) setSuggestions(await res.json())
+  }, [])
 
   const load = useCallback(async (tag: string | null) => {
     const res = await fetch(tag ? `/api/memories?tag=${encodeURIComponent(tag)}` : '/api/memories')
@@ -32,8 +38,10 @@ export default function MemoriesPage() {
 
   useEffect(() => {
     createClient().auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null))
-    load(null)
-  }, [load])
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load(null)
+    void loadSuggestions()
+  }, [load, loadSuggestions])
 
   function selectTag(tag: string | null) {
     setActiveTag(tag)
@@ -80,6 +88,18 @@ export default function MemoriesPage() {
     if (res.ok) await load(activeTag)
   }
 
+  async function confirmSuggestion(id: string) {
+    const res = await fetch(`/api/memories/confirm/${id}`, { method: 'POST' })
+    if (res.ok) {
+      await Promise.all([load(activeTag), loadSuggestions()])
+    }
+  }
+
+  async function dismissSuggestion(id: string) {
+    const res = await fetch(`/api/memories/${id}`, { method: 'DELETE' })
+    if (res.ok) await loadSuggestions()
+  }
+
   const allTags = [...new Set(memories.flatMap(m => m.tags))].sort()
 
   return (
@@ -88,6 +108,51 @@ export default function MemoriesPage() {
       <p className="text-ink-muted text-[13px] mb-5">
         {memories.length} shared · tagged &amp; filterable
       </p>
+
+      {suggestions.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Sparkles size={12} className="text-accent" />
+            <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">
+              Suggested by .chtku
+            </span>
+          </div>
+          <div className="space-y-3">
+            {suggestions.map(s => (
+              <div key={s.id} className="bg-bg-deep rounded-neu-sm shadow-inset p-4">
+                {s.tags.length > 0 && (
+                  <div className="flex gap-1.5 mb-2 flex-wrap">
+                    {s.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="text-[10px] font-semibold uppercase tracking-wider text-accent px-2.5 py-1 rounded-full bg-surface shadow-raised-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="text-sm font-semibold mb-1">{s.title}</div>
+                <p className="text-xs text-ink-muted leading-relaxed mb-3">{s.content}</p>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => confirmSuggestion(s.id)}
+                    className="px-3 py-1.5 bg-surface text-accent rounded-neu-sm shadow-raised text-[11px] font-semibold active:shadow-inset transition-all"
+                  >
+                    Add to memories
+                  </button>
+                  <button
+                    onClick={() => dismissSuggestion(s.id)}
+                    className="text-[11px] font-medium text-ink-soft active:text-ink transition-colors"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {allTags.length > 0 && (
         <div className="flex gap-2 flex-wrap mb-5">

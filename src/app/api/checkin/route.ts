@@ -2,6 +2,7 @@ import { createClient, getWorkspaceId } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { complete } from '@/lib/ai'
 import { buildCheckinSummaryPrompt, buildTemplateCheckinSummary } from '@/lib/prompts/checkin'
+import { buildMemorySuggestionPrompt, MEMORY_SUGGESTION_ALLOWED_TAGS } from '@/lib/prompts/memories'
 
 const UNLOCK_MS = 24 * 60 * 60 * 1000
 
@@ -131,6 +132,74 @@ export async function POST(request: Request) {
       })
     }
   }
+
+  // Best-effort AI memory suggestion extraction — never affects the check-in response.
+  // Awaited (not fire-and-forget) because serverless runtimes may kill work that
+  // continues after the response is returned.
+  await (async () => {
+    try {
+      const freeText = typeof body.free_text === 'string' ? body.free_text.trim() : ''
+      if (!freeText) return
+
+      const [profileResult, titlesResult] = await Promise.all([
+        supabase.from('profiles').select('display_name').eq('id', user.id).single(),
+        supabase
+          .from('memories')
+          .select('title')
+          .eq('workspace_id', workspaceId)
+          .order('created_at', { ascending: false })
+          .limit(30),
+      ])
+
+      const displayName = profileResult.data?.display_name ?? 'You'
+      const existingTitles = (titlesResult.data ?? []).map((r: { title: string }) => r.title)
+
+      const raw = await complete(buildMemorySuggestionPrompt(freeText, displayName, existingTitles), 512)
+      if (!raw) return
+
+      let candidates: unknown[] = []
+      try {
+        const jsonMatch = raw.match(/\[[\s\S]*\]/)
+        candidates = jsonMatch ? (JSON.parse(jsonMatch[0]) as unknown[]) : []
+      } catch {
+        return
+      }
+
+      const validated = candidates
+        .filter(
+          (item): item is { title: string; content: string; tags: string[] } =>
+            item !== null &&
+            typeof item === 'object' &&
+            typeof (item as Record<string, unknown>).title === 'string' &&
+            (item as Record<string, unknown>).title !== '' &&
+            typeof (item as Record<string, unknown>).content === 'string' &&
+            (item as Record<string, unknown>).content !== '' &&
+            Array.isArray((item as Record<string, unknown>).tags)
+        )
+        .slice(0, 2)
+        .map(item => ({
+          ...item,
+          tags: (item.tags as unknown[])
+            .filter((t): t is string => typeof t === 'string' && MEMORY_SUGGESTION_ALLOWED_TAGS.includes(t)),
+        }))
+
+      if (!validated.length) return
+
+      await supabase.from('memories').insert(
+        validated.map(item => ({
+          workspace_id: workspaceId,
+          created_by: user.id,
+          title: item.title,
+          content: item.content,
+          tags: item.tags,
+          source: 'ai_suggested' as const,
+          confirmed: false,
+        }))
+      )
+    } catch {
+      // intentionally silent
+    }
+  })()
 
   return NextResponse.json(checkin, { status: 201 })
 }

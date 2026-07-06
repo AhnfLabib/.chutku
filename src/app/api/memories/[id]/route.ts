@@ -52,7 +52,6 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
     .delete()
     .eq('id', id)
     .eq('workspace_id', workspaceId)
-    .eq('created_by', user.id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return new Response(null, { status: 204 })
