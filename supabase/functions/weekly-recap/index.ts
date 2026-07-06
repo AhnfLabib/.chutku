@@ -83,11 +83,17 @@ Deno.serve(async () => {
     const summaryText =
       (await ollamaComplete(prompt)) || templateRecap(names, checkins)
 
-    await supabase.from('checkin_summaries').upsert({
-      workspace_id: workspace.id,
-      checkin_date: today,
-      summary_text: summaryText,
-    })
+    const { error: upsertError } = await supabase.from('checkin_summaries').upsert(
+      {
+        workspace_id: workspace.id,
+        checkin_date: today,
+        summary_text: summaryText,
+      },
+      { onConflict: 'workspace_id,checkin_date' }
+    )
+    if (upsertError) {
+      console.error(`weekly-recap upsert failed for workspace ${workspace.id}:`, upsertError.message)
+    }
 
     await new Promise(r => setTimeout(r, 1000))
   }

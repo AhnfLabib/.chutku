@@ -42,7 +42,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ### 3. Apply database migrations
 
-Run all 8 migrations against your Supabase project in order:
+Run all 9 migrations against your Supabase project in order:
 
 ```bash
 npx supabase db push
@@ -60,6 +60,7 @@ supabase/migrations/
   006_rls.sql           — row-level security policies
   007_functions.sql     — search_memories(), update_checkin_streak(), get_daily_prompt()
   008_checkin_reveal_rls.sql — 24hr partner reveal enforced in RLS
+  009_memory_suggestions_rls.sql — AI memory suggestions visible/dismissable by both partners
 ```
 
 ### 4. Install Ollama (local AI)
@@ -94,10 +95,11 @@ App runs at [http://localhost:3000](http://localhost:3000).
 - Streak tracking
 - Dashboard with priority items, streak card, and today's summary
 
-### Phase 3 — AI Features (planned)
-- AI-powered date idea generation (API exists; UI pending)
-- Memory confirmation flow for AI suggestions
-- Weekly recap via Edge Function cron
+### Phase 3 — AI Features ✅
+- AI-powered date planning: generate ideas (category/budget/duration filters), save, schedule, complete, plus manual plans
+- AI memory suggestions: check-in free text is mined for durable memories; both partners can confirm or dismiss suggestions
+- Weekly recap via Edge Function cron (`supabase/functions/weekly-recap`)
+- Sign-out, account info, and partner invite in Settings
 
 ## Project Structure
 
@@ -112,8 +114,8 @@ src/
     (app)/                — authenticated app shell
       dashboard/
       checkin/
-      memories/
-      dates/
+      memories/            — shared memories + AI suggestion review
+      dates/               — AI date generation + plan management
       settings/
     api/                  — all API routes
   components/layout/      — AppNav
@@ -121,7 +123,7 @@ src/
     supabase/             — browser + server clients
     dashboard.ts          — shared dashboard data helper
     ai.ts                 — Ollama client + couple context builder
-    prompts/              — checkin, dates prompt templates
+    prompts/              — checkin, dates, memories prompt templates
   types/index.ts          — all DB + app types
 supabase/
   migrations/             — 8 ordered SQL migrations
@@ -141,6 +143,17 @@ mockups/
 **Check-in unlock is time-based and enforced in RLS.** Partner B's response is revealed 24 hours after Partner A submits, or immediately if both have submitted — whichever comes first. Migration `008_checkin_reveal_rls.sql` enforces this at the database level (not just in the API route).
 
 **Daily prompt is deterministic.** Both partners always see the same prompt for a given day, derived from `hash(workspace_id) + day_of_year mod prompt_count`. No state needed.
+
+**AI memory suggestions are unconfirmed until a human approves them.** Check-in free text is mined (best-effort, never blocks the check-in) for durable memories, stored with `source = 'ai_suggested', confirmed = false`. Unconfirmed suggestions never enter AI context (`buildCoupleContext` filters on `confirmed = true`); either partner can confirm or dismiss them (migration 009).
+
+## Cron setup (Edge Functions)
+
+Deploy and schedule the two functions after `npx supabase functions deploy checkin-nudge weekly-recap`:
+
+- `checkin-nudge` — run hourly (e.g. `0 * * * *`) to nudge couples where one partner submitted ~20h ago
+- `weekly-recap` — run Sunday evenings (e.g. `0 18 * * 0`) to write a weekly recap into `checkin_summaries`
+
+Schedule via the Supabase dashboard (Edge Functions → Schedules) or `pg_cron` + `pg_net`.
 
 ## Design
 
